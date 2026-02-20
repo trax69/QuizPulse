@@ -122,6 +122,50 @@ button,
   overflow-wrap: anywhere;
 }
 
+.feedback-box {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  border-width: 2px;
+  border-style: solid;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.feedback-box--success {
+  border-color: #047857;
+  background: #d1fae5;
+  color: #064e3b;
+}
+
+.feedback-box--error {
+  border-color: #b91c1c;
+  background: #fee2e2;
+  color: #7f1d1d;
+}
+
+.dark .feedback-box--success {
+  border-color: #6ee7b7;
+  background: #052e2b;
+  color: #d1fae5;
+}
+
+.dark .feedback-box--error {
+  border-color: #fca5a5;
+  background: #450a0a;
+  color: #fee2e2;
+}
+
+.feedback-box__title {
+  font-weight: 700;
+}
+
+.feedback-box__body {
+  margin-top: 0.25rem;
+}
+
 .score-donut-track {
   stroke: rgb(203 213 225);
 }

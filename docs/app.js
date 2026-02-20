@@ -356,7 +356,7 @@ function toggleOptionsDisabled(disabled) {
 
 function showFeedback({ isCorrect, explanation, timedOut = false, correctOption = null, refocus = true }) {
   elements.feedbackBox.classList.remove("hidden");
-  elements.feedbackBox.className = "mt-4 rounded-xl border px-4 py-3 text-base";
+  elements.feedbackBox.className = "feedback-box mt-4";
 
   let prefix = t("incorrect");
   if (timedOut) {
@@ -371,12 +371,12 @@ function showFeedback({ isCorrect, explanation, timedOut = false, correctOption 
   }
 
   if (isCorrect) {
-    elements.feedbackBox.classList.add("border-emerald-700", "bg-emerald-100", "text-emerald-900", "dark:border-emerald-300", "dark:bg-emerald-950", "dark:text-emerald-100");
+    elements.feedbackBox.classList.add("feedback-box--success");
   } else {
-    elements.feedbackBox.classList.add("border-red-700", "bg-red-100", "text-red-900", "dark:border-red-300", "dark:bg-red-950", "dark:text-red-100");
+    elements.feedbackBox.classList.add("feedback-box--error");
   }
 
-  elements.feedbackBox.innerHTML = `<div class="font-semibold">${prefix}</div><div class="mt-1">${escapeHtml(message)}</div>`;
+  elements.feedbackBox.innerHTML = `<div class="feedback-box__title">${prefix}</div><div class="feedback-box__body">${escapeHtml(message)}</div>`;
   if (refocus) {
     elements.feedbackBox.focus();
   }
