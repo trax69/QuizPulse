@@ -1,0 +1,153 @@
+:where(button, [role="button"], input, select, textarea, a, [tabindex]):focus-visible {
+  outline: 3px solid #1d4ed8;
+  outline-offset: 2px;
+}
+
+.skip-link {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translateY(-120%);
+  background: #0f172a;
+  color: #fff;
+  padding: 0.75rem 1rem;
+  z-index: 60;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+.touch-target,
+button,
+[role="button"] {
+  min-height: 44px;
+}
+
+.icon-only {
+  min-width: 44px;
+}
+
+.glass {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.45));
+  backdrop-filter: blur(18px);
+}
+
+.dark .glass {
+  background: linear-gradient(145deg, rgba(15, 23, 42, 0.72), rgba(30, 41, 59, 0.46));
+}
+
+.drop-zone.dragover {
+  border-color: #635bff;
+  box-shadow: 0 0 0 4px rgba(99, 91, 255, 0.2);
+}
+
+.reading-width {
+  max-width: 72ch;
+}
+
+.reading-mode {
+  line-height: 1.65;
+  letter-spacing: 0.01em;
+  word-spacing: 0.08em;
+}
+
+.reading-mode p,
+.reading-mode li,
+.reading-mode button,
+.reading-mode label,
+.reading-mode h1,
+.reading-mode h2,
+.reading-mode h3,
+.reading-mode h4 {
+  line-height: 1.6;
+}
+
+.high-contrast {
+  filter: contrast(1.15);
+}
+
+.reduce-motion *,
+.reduce-motion *::before,
+.reduce-motion *::after {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}
+
+.option-item {
+  display: block;
+}
+
+.option-item:focus-visible span {
+  outline: 3px solid #1d4ed8;
+  outline-offset: 2px;
+}
+
+.option-item input:focus-visible+span {
+  outline: 3px solid #1d4ed8;
+  outline-offset: 2px;
+}
+
+#confirmDialog,
+#shortcutDialog {
+  width: min(92vw, 32rem);
+  border: 0;
+  border-radius: 1rem;
+  padding: 0;
+  color: inherit;
+  background: transparent;
+}
+
+#confirmDialog::backdrop,
+#shortcutDialog::backdrop {
+  background: rgba(15, 23, 42, 0.72);
+}
+
+.dialog-panel {
+  border: 2px solid #0f172a;
+  border-radius: 1rem;
+  padding: 1.25rem;
+}
+
+.dark .dialog-panel {
+  border-color: #e2e8f0;
+}
+
+#questionText,
+#feedbackBox,
+#mostFailedList li,
+#attemptHistoryList li,
+#dropZoneHint {
+  overflow-wrap: anywhere;
+}
+
+.score-donut-track {
+  stroke: rgb(203 213 225);
+}
+
+.dark .score-donut-track {
+  stroke: rgb(71 85 105);
+}
+
+.score-donut-arc {
+  stroke: rgb(99 91 255);
+  stroke-linecap: round;
+}
+
+.score-donut-value {
+  fill: currentColor;
+  font-weight: 700;
+  font-size: 18px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

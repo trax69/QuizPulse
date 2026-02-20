@@ -1,0 +1,9 @@
+# Ignore everything by default
+*
+
+# Keep ignore rules file itself
+!.gitignore
+
+# Keep only the app (GitHub Pages content)
+!docs/
+!docs/**
