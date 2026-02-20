@@ -1013,4 +1013,23 @@ function init() {
   restartFlow();
 }
 
+export const __test = {
+  state,
+  elements,
+  applyTranslations,
+  formatDateForLanguage,
+  getModeLabel,
+  renderCurrentQuestion,
+  toggleOptionsDisabled,
+  onOptionSelected,
+  parseSettingsFromUi,
+  showConfirmDialog,
+  uploadQuizModel,
+  renderResults,
+  renderScoreDonut,
+  refreshResultPanelText,
+  practiceFailedQuestions,
+  confirmRestartFlow
+};
+
 init();
