@@ -33,31 +33,14 @@ Open: `http://127.0.0.1:8000`
 
 ## GitHub Pages
 
-Deploy from branch `main`, folder `/docs`.
+**Live app:** https://trax69.github.io/QuizPulse
+
+Deployed from branch `main`, folder `/docs`.
 
 ## Accessibility
 
 - Report: `docs/wcag-aaa-report.md`
 - Audited scope: `docs/index.html`
-
-## Published structure
-
-```text
-docs/
-  .nojekyll
-  app.js
-  exporters.js
-  i18n.js
-  index.html
-  quiz-engine.js
-  storage.js
-  style.css
-  ui.js
-  vendor/
-  wcag-aaa-report.md
-README.md
-.gitignore
-```
 
 ## JSON schema
 
