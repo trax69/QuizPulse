@@ -3,7 +3,6 @@ import {
   collectCategories,
   createShuffledSession as buildShuffledSession,
   getFilteredQuestions as filterQuestions,
-  hashQuiz as buildQuizHash,
   normalizeQuestions as normalizeQuizQuestions
 } from "./quiz-engine.js";
 import {
@@ -14,11 +13,18 @@ import {
 } from "./exporters.js";
 import {
   getFailedQuestionKeySet as getFailedQuestionKeys,
-  loadHistoryState,
   loadUiSettings,
-  saveHistoryState,
   saveUiSettings
 } from "./storage.js";
+import {
+  computeContentHash,
+  deleteQuiz as dbDeleteQuiz,
+  getAllQuizzes,
+  getQuizByHash,
+  loadHistoryFromDb,
+  saveHistoryToDb,
+  saveQuiz as dbSaveQuiz
+} from "./db.js";
 import {
   applyContrastUi,
   applyMotionUi,
@@ -32,6 +38,7 @@ import {
 const state = {
   pendingFile: null,
   originalQuizData: null,
+  quizHash: null,
   questions: [],
   currentIndex: 0,
   answeredCurrent: false,
@@ -112,7 +119,15 @@ const elements = {
   confirmCancelBtn: document.getElementById("confirmCancelBtn"),
   confirmAcceptBtn: document.getElementById("confirmAcceptBtn"),
   shortcutDialog: document.getElementById("shortcutDialog"),
-  shortcutCloseBtn: document.getElementById("shortcutCloseBtn")
+  shortcutCloseBtn: document.getElementById("shortcutCloseBtn"),
+  savedQuizzesSection: document.getElementById("savedQuizzesSection"),
+  savedQuizzesList: document.getElementById("savedQuizzesList"),
+  savedQuizzesEmpty: document.getElementById("savedQuizzesEmpty"),
+  nameQuizDialog: document.getElementById("nameQuizDialog"),
+  nameQuizInput: document.getElementById("nameQuizInput"),
+  nameQuizError: document.getElementById("nameQuizError"),
+  nameQuizConfirmBtn: document.getElementById("nameQuizConfirmBtn"),
+  nameQuizCancelBtn: document.getElementById("nameQuizCancelBtn")
 };
 
 const KEYS = {
@@ -169,6 +184,10 @@ function applyTranslations() {
     showFeedback({ ...state.lastFeedback, refocus: false });
   }
   reapplyImportMessageTranslation();
+  if (elements.nameQuizInput) {
+    elements.nameQuizInput.placeholder = t("nameQuizPlaceholder");
+  }
+  renderSavedQuizzes().catch(() => {});
 }
 
 function renderHelpGlossary() {
@@ -212,10 +231,6 @@ function formatDateForLanguage(value) {
 
 function getModeLabel(mode) {
   return mode === "failed_only" ? t("modeFailedShort") : t("modeFullShort");
-}
-
-function hashQuiz(payload) {
-  return buildQuizHash(payload);
 }
 
 function setImportMessage(message, type = "info") {
@@ -496,8 +511,8 @@ function onOptionSelected(questionId, optionId, { timedOut = false } = {}) {
   elements.nextBtn.focus();
 }
 
-function loadHistory() {
-  const loaded = loadHistoryState(state.historyKey);
+async function loadHistory() {
+  const loaded = await loadHistoryFromDb(state.quizHash);
   state.attemptsHistory = loaded.attemptsHistory;
   state.questionStats = loaded.questionStats;
   state.bestAttempt = loaded.bestAttempt;
@@ -505,10 +520,12 @@ function loadHistory() {
 }
 
 function saveHistory() {
-  saveHistoryState(state.historyKey, {
+  saveHistoryToDb(state.quizHash, {
     attemptsHistory: state.attemptsHistory,
     questionStats: state.questionStats,
     bestAttempt: state.bestAttempt
+  }).catch((error) => {
+    console.error("[QuizPulse] Failed to persist history:", error);
   });
 }
 
@@ -719,6 +736,39 @@ async function uploadQuizModel() {
     parseSettingsFromUi();
     const payload = await parseSelectedFileAsJson();
     const normalized = normalizeQuestions(payload);
+
+    // ── Deduplication: compute SHA-256 of normalised content ──────────────
+    const hash = await computeContentHash(normalized);
+    const existing = await getQuizByHash(hash);
+
+    if (existing) {
+      // Same content already in library → notify and offer to load it
+      const loadIt = await showConfirmDialog({
+        title: t("duplicateQuizTitle"),
+        message: t("duplicateQuizMessage", { name: existing.name }),
+        confirmText: t("loadQuiz"),
+        cancelText: t("confirmCancel")
+      });
+
+      if (!loadIt) {
+        setImportMessageByKey("startCanceled", "info");
+        elements.startFromUpload.disabled = false;
+        return;
+      }
+
+      await loadQuizFromLibrary(existing, { skipProgressCheck: true });
+      return;
+    }
+
+    // ── New quiz → ask for a friendly name ────────────────────────────────
+    const friendlyName = await showNameQuizDialog(state.pendingFile?.name ?? "");
+    if (!friendlyName) {
+      setImportMessageByKey("startCanceled", "info");
+      elements.startFromUpload.disabled = !state.pendingFile;
+      return;
+    }
+
+    // ── Confirm start ──────────────────────────────────────────────────────
     const confirmed = await showConfirmDialog({
       title: t("confirm"),
       message: t("startQuizConfirm", { count: normalized.length }),
@@ -732,11 +782,23 @@ async function uploadQuizModel() {
       return;
     }
 
+    // ── Persist to IndexedDB ───────────────────────────────────────────────
+    await dbSaveQuiz({
+      hash,
+      name: friendlyName,
+      normalizedData: normalized,
+      questionCount: normalized.length,
+      categories: collectCategories(normalized)
+    });
+
+    // ── Bootstrap app state ────────────────────────────────────────────────
     state.originalQuizData = normalized;
-    state.historyKey = `pulse-history-${hashQuiz(normalized)}`;
-    loadHistory();
+    state.quizHash = hash;
+    await loadHistory();
     buildCategories();
     elements.categoryFilter.value = state.categoryFilter;
+
+    renderSavedQuizzes().catch(() => {});
 
     const filtered = getFilteredQuestions();
     await startQuizWithPayload(filtered, { mode: "full" });
@@ -745,6 +807,268 @@ async function uploadQuizModel() {
     elements.startFromUpload.disabled = !state.pendingFile;
   }
 }
+
+// ─── Name-quiz dialog ─────────────────────────────────────────────────────────
+
+/**
+ * Show the name-quiz dialog and resolve with the entered name (or null on cancel).
+ * @param {string} [fileName] Pre-fills the input from the raw filename.
+ * @returns {Promise<string|null>}
+ */
+function showNameQuizDialog(fileName = "") {
+  if (!elements.nameQuizDialog?.showModal) {
+    // Fallback for environments without <dialog> support
+    const name = (fileName.replace(/\.json$/i, "").replaceAll(/[_-]/g, " ").trim()) || "Quiz";
+    return Promise.resolve(name);
+  }
+
+  const previousFocus = document.activeElement;
+
+  // Pre-fill with a cleaned-up version of the filename
+  const suggestion = fileName.replace(/\.json$/i, "").replaceAll(/[_-]/g, " ").trim();
+  elements.nameQuizInput.value = suggestion;
+  elements.nameQuizInput.placeholder = t("nameQuizPlaceholder");
+  elements.nameQuizError.textContent = "";
+  elements.nameQuizError.classList.add("hidden");
+
+  return new Promise((resolve) => {
+    let settled = false;
+
+    const finalize = (name) => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      if (elements.nameQuizDialog.open) elements.nameQuizDialog.close();
+      if (previousFocus && typeof previousFocus.focus === "function") previousFocus.focus();
+      resolve(name);
+    };
+
+    const onConfirm = () => {
+      const name = elements.nameQuizInput.value.trim();
+      if (!name) {
+        elements.nameQuizError.textContent = t("nameQuizEmpty");
+        elements.nameQuizError.classList.remove("hidden");
+        elements.nameQuizInput.focus();
+        return;
+      }
+      finalize(name);
+    };
+
+    const onCancel = () => finalize(null);
+    const onDialogCancel = (event) => {
+      event.preventDefault();
+      finalize(null);
+    };
+    const onKeydown = (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        onConfirm();
+      }
+    };
+
+    function cleanup() {
+      elements.nameQuizConfirmBtn.removeEventListener("click", onConfirm);
+      elements.nameQuizCancelBtn.removeEventListener("click", onCancel);
+      elements.nameQuizDialog.removeEventListener("cancel", onDialogCancel);
+      elements.nameQuizInput.removeEventListener("keydown", onKeydown);
+    }
+
+    elements.nameQuizConfirmBtn.addEventListener("click", onConfirm);
+    elements.nameQuizCancelBtn.addEventListener("click", onCancel);
+    elements.nameQuizDialog.addEventListener("cancel", onDialogCancel);
+    elements.nameQuizInput.addEventListener("keydown", onKeydown);
+
+    elements.nameQuizDialog.showModal();
+    elements.nameQuizInput.select();
+    elements.nameQuizInput.focus();
+  });
+}
+
+// ─── Library ──────────────────────────────────────────────────────────────────
+
+/**
+ * Load a quiz from the saved library and start a session.
+ * @param {import("./db.js").QuizRecord} quiz
+ * @param {{ skipProgressCheck?: boolean }} [options]
+ */
+async function loadQuizFromLibrary(quiz, { skipProgressCheck = false } = {}) {
+  const hasProgress = !skipProgressCheck && state.attemptCount > 0;
+
+  if (hasProgress) {
+    const confirmed = await showConfirmDialog({
+      title: t("confirm"),
+      message: t("importAnotherConfirm"),
+      confirmText: t("loadQuiz"),
+      cancelText: t("confirmCancel"),
+      destructive: true
+    });
+    if (!confirmed) return;
+  }
+
+  parseSettingsFromUi();
+
+  // Reset file-upload UI – not needed for library loads
+  state.pendingFile = null;
+  elements.fileInput.value = "";
+  elements.startFromUpload.disabled = true;
+  setImportMessageByKey("importReady");
+
+  state.originalQuizData = quiz.normalizedData;
+  state.quizHash = quiz.hash;
+  await loadHistory();
+  buildCategories();
+  elements.categoryFilter.value = state.categoryFilter;
+
+  const filtered = getFilteredQuestions();
+  if (!filtered.length) {
+    setImportMessageByKey("noQuestionsForCategory", "error");
+    return;
+  }
+
+  const confirmed = await showConfirmDialog({
+    title: t("confirm"),
+    message: t("startQuizConfirm", { count: filtered.length }),
+    confirmText: t("startQuiz"),
+    cancelText: t("confirmCancel")
+  });
+
+  if (!confirmed) {
+    setImportMessageByKey("startCanceled", "info");
+    return;
+  }
+
+  await startQuizWithPayload(filtered, { mode: "full" });
+}
+
+/**
+ * Build a single library list item element.
+ * @param {import("./db.js").QuizRecord} quiz
+ * @returns {HTMLLIElement}
+ */
+/**
+ * Build a single library list item element.
+ * @param {import("./db.js").QuizRecord} quiz
+ * @param {{ attemptCount: number, bestAttempt: object|null }} [history]
+ */
+function renderQuizLibraryItem(quiz, history) {
+  const li = document.createElement("li");
+  li.className =
+    "flex items-start justify-between gap-3 rounded-xl border border-slate-300 bg-white/70 px-4 py-3 dark:border-slate-600 dark:bg-slate-800/50";
+
+  // Info block
+  const info = document.createElement("div");
+  info.className = "min-w-0 flex-1";
+
+  const name = document.createElement("p");
+  name.className = "truncate text-sm font-semibold";
+  name.textContent = quiz.name;
+
+  const meta = document.createElement("p");
+  meta.className = "mt-0.5 text-xs text-slate-600 dark:text-slate-400";
+  meta.textContent = `${t("questions", { count: quiz.questionCount })} · ${t("importedAtLabel")}: ${formatDateForLanguage(quiz.importedAt)}`;
+
+  const stats = document.createElement("p");
+  stats.className = "mt-0.5 text-xs text-slate-500 dark:text-slate-500";
+  if (history && history.attemptCount > 0) {
+    const pct = history.bestAttempt ? Math.round(history.bestAttempt.percentage) : 0;
+    stats.textContent = `${t("libraryAttempts", { count: history.attemptCount })} · ${t("libraryBestScore", { percentage: pct })}`;
+  } else {
+    stats.textContent = t("libraryNoAttempts");
+  }
+
+  info.append(name, meta, stats);
+
+  // Actions block
+  const actions = document.createElement("div");
+  actions.className = "flex flex-shrink-0 gap-2";
+
+  const loadBtn = document.createElement("button");
+  loadBtn.type = "button";
+  loadBtn.className =
+    "touch-target rounded-xl bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white dark:bg-slate-100 dark:text-slate-900";
+  loadBtn.textContent = t("loadQuiz");
+  loadBtn.setAttribute("aria-label", `${t("loadQuiz")}: ${quiz.name}`);
+  loadBtn.addEventListener("click", () => loadQuizFromLibrary(quiz));
+
+  const deleteBtn = document.createElement("button");
+  deleteBtn.type = "button";
+  deleteBtn.className =
+    "touch-target rounded-xl border-2 border-red-700 bg-white px-3 py-1.5 text-xs font-semibold text-red-700 dark:border-red-400 dark:bg-slate-900 dark:text-red-400";
+  deleteBtn.textContent = t("deleteQuiz");
+  deleteBtn.setAttribute("aria-label", `${t("deleteQuiz")}: ${quiz.name}`);
+  deleteBtn.addEventListener("click", () => confirmDeleteQuiz(quiz));
+
+  actions.append(loadBtn, deleteBtn);
+  li.append(info, actions);
+  return li;
+}
+
+/**
+ * Fetch all saved quizzes and render the library panel.
+ * Safe to call at any time – handles its own errors silently.
+ * @returns {Promise<void>}
+ */
+let _renderSavedQuizzesSeq = 0;
+async function renderSavedQuizzes() {
+  if (!elements.savedQuizzesList || !elements.savedQuizzesEmpty) return;
+
+  const seq = ++_renderSavedQuizzesSeq;
+
+  try {
+    const quizzes = await getAllQuizzes();
+    if (seq !== _renderSavedQuizzesSeq) return;
+
+    elements.savedQuizzesList.innerHTML = "";
+
+    if (quizzes.length === 0) {
+      elements.savedQuizzesEmpty.classList.remove("hidden");
+      return;
+    }
+
+    elements.savedQuizzesEmpty.classList.add("hidden");
+    const histories = await Promise.all(quizzes.map((q) => loadHistoryFromDb(q.hash)));
+    if (seq !== _renderSavedQuizzesSeq) return;
+
+    quizzes.forEach((quiz, i) => {
+      elements.savedQuizzesList.appendChild(renderQuizLibraryItem(quiz, histories[i]));
+    });
+  } catch (err) {
+    console.error("[QuizPulse] Could not render saved quizzes:", err);
+  }
+}
+
+/**
+ * Ask for confirmation, then delete a quiz from the library.
+ * @param {import("./db.js").QuizRecord} quiz
+ */
+async function confirmDeleteQuiz(quiz) {
+  const confirmed = await showConfirmDialog({
+    title: t("confirm"),
+    message: t("deleteQuizConfirm", { name: quiz.name }),
+    confirmText: t("deleteQuiz"),
+    cancelText: t("confirmCancel"),
+    destructive: true
+  });
+  if (!confirmed) return;
+
+  await dbDeleteQuiz(/** @type {number} */ (quiz.id), quiz.hash);
+
+  // If the deleted quiz was the active one, reset related state
+  if (state.quizHash === quiz.hash) {
+    state.originalQuizData = null;
+    state.quizHash = null;
+    state.attemptsHistory = [];
+    state.questionStats = {};
+    state.bestAttempt = null;
+    state.attemptCount = 0;
+    renderHistoryInsights();
+    updateFailedOnlyButtonState();
+  }
+
+  await renderSavedQuizzes();
+}
+
+// ─── Results ───────────────────────────────────────────────────────────────────
 
 function renderResults() {
   clearTimer();
@@ -903,6 +1227,7 @@ function restartFlow() {
   renderHistoryInsights();
   updateFailedOnlyButtonState();
   setImportMessageByKey("importReady");
+  renderSavedQuizzes().catch(() => {});
 }
 
 async function confirmRestartFlow() {
@@ -1096,7 +1421,11 @@ export const __test = {
   renderScoreDonut,
   refreshResultPanelText,
   practiceFailedQuestions,
-  confirmRestartFlow
+  confirmRestartFlow,
+  showNameQuizDialog,
+  loadQuizFromLibrary,
+  renderSavedQuizzes,
+  confirmDeleteQuiz
 };
 
 init();

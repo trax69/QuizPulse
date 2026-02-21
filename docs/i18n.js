@@ -151,7 +151,42 @@ const TRANSLATIONS = {
   abortConfirm: [
     "Leave this quiz attempt and load another model?",
     "¿Salir del intento actual y cargar otro modelo?"
-  ]
+  ],
+
+  // ── Saved-quiz library ─────────────────────────────────────────────────────
+  savedQuizzesHeading: ["Saved Quizzes", "Cuestionarios guardados"],
+  savedQuizzesEmpty: ["No saved quizzes yet. Import a JSON file to get started.", "Aún no hay cuestionarios guardados. Importa un archivo JSON para comenzar."],
+  loadQuiz: ["Load", "Cargar"],
+  deleteQuiz: ["Delete", "Eliminar"],
+  deleteQuizConfirm: [
+    "Delete \"{name}\" and all its history? This cannot be undone.",
+    "¿Eliminar \"{name}\" y todo su historial? Esto no se puede deshacer."
+  ],
+  questions: ["{count} questions", "{count} preguntas"],
+  importedAtLabel: ["Imported", "Importado"],
+
+  // ── Name-quiz dialog ───────────────────────────────────────────────────────
+  nameQuizTitle: ["Name your quiz", "Nombra tu cuestionario"],
+  nameQuizInstructions: [
+    "Give this quiz a short, descriptive name so you can find it easily later.",
+    "Dale un nombre corto y descriptivo para encontrarlo fácilmente después."
+  ],
+  nameQuizLabel: ["Quiz name", "Nombre del cuestionario"],
+  nameQuizPlaceholder: ["e.g. AWS Cloud Practitioner", "ej. Fundamentos de AWS"],
+  nameQuizSave: ["Save & Start", "Guardar e iniciar"],
+  nameQuizEmpty: ["Please enter a name for the quiz.", "Por favor ingresa un nombre para el cuestionario."],
+
+  // ── Duplicate-detection ────────────────────────────────────────────────────
+  duplicateQuizTitle: ["Quiz already in library", "Cuestionario ya guardado"],
+  duplicateQuizMessage: [
+    "A quiz named \"{name}\" with identical content is already in your library. Load it now?",
+    "Un cuestionario llamado \"{name}\" con contenido idéntico ya está en tu biblioteca. ¿Cargarlo ahora?"
+  ],
+
+  // ── Library performance stats ─────────────────────────────────────────────
+  libraryAttempts: ["{count} attempt(s)", "{count} intento(s)"],
+  libraryBestScore: ["Best: {percentage}%", "Mejor: {percentage}%"],
+  libraryNoAttempts: ["No attempts yet", "Sin intentos aún"]
 };
 
 function buildLanguageTables() {

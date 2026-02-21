@@ -125,6 +125,27 @@
             >
           </div>
 
+          <!-- ── Saved-quiz library ──────────────────────────────────────── -->
+          <div id="savedQuizzesSection" class="mb-4">
+            <div class="mb-2 flex items-center gap-2">
+              <i data-lucide="library" class="h-4 w-4 text-electric-500" aria-hidden="true"></i>
+              <h3 class="text-sm font-semibold" data-i18n="savedQuizzesHeading">Saved Quizzes</h3>
+            </div>
+            <ul
+              id="savedQuizzesList"
+              class="space-y-2"
+              aria-label="Saved quizzes"
+              aria-live="polite"
+            ></ul>
+            <p
+              id="savedQuizzesEmpty"
+              class="hidden rounded-xl border border-dashed border-slate-300 px-4 py-3 text-sm text-slate-600 dark:border-slate-600 dark:text-slate-400"
+              data-i18n="savedQuizzesEmpty"
+            >
+              No saved quizzes yet. Import a JSON file to get started.
+            </p>
+          </div>
+
           <div
             id="dropZone"
             class="drop-zone mb-4 rounded-2xl border-2 border-dashed border-slate-400 p-6 text-center transition-all duration-200 dark:border-slate-500"
@@ -396,6 +417,56 @@
                 data-i18n="confirmContinue"
               >
                 Continue
+              </button>
+            </div>
+          </div>
+        </dialog>
+
+        <!-- ── Name-quiz dialog ──────────────────────────────────────────── -->
+        <dialog
+          id="nameQuizDialog"
+          aria-modal="true"
+          aria-labelledby="nameQuizTitle"
+          aria-describedby="nameQuizInstructions"
+        >
+          <div class="dialog-panel glass shadow-softGlass">
+            <h2 id="nameQuizTitle" class="text-lg font-semibold" data-i18n="nameQuizTitle">Name your quiz</h2>
+            <p id="nameQuizInstructions" class="mt-2 text-sm text-slate-700 dark:text-slate-300" data-i18n="nameQuizInstructions">
+              Give this quiz a short, descriptive name so you can find it easily later.
+            </p>
+            <label class="mt-3 block">
+              <span class="text-sm font-semibold" data-i18n="nameQuizLabel">Quiz name</span>
+              <input
+                id="nameQuizInput"
+                type="text"
+                maxlength="80"
+                autocomplete="off"
+                spellcheck="false"
+                class="mt-1 w-full rounded-lg border border-slate-400 bg-white px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-electric-500 dark:border-slate-500 dark:bg-slate-800 dark:text-slate-100"
+              />
+            </label>
+            <p
+              id="nameQuizError"
+              class="mt-1 hidden text-sm text-red-700 dark:text-red-400"
+              role="alert"
+              aria-live="assertive"
+            ></p>
+            <div class="mt-4 flex flex-wrap justify-end gap-2">
+              <button
+                id="nameQuizCancelBtn"
+                type="button"
+                class="touch-target rounded-xl border-2 border-slate-900 bg-white px-4 py-2 text-sm font-semibold text-slate-900 dark:border-slate-200 dark:bg-slate-900 dark:text-slate-100"
+                data-i18n="confirmCancel"
+              >
+                Cancel
+              </button>
+              <button
+                id="nameQuizConfirmBtn"
+                type="button"
+                class="touch-target rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white dark:bg-slate-100 dark:text-slate-900"
+                data-i18n="nameQuizSave"
+              >
+                Save &amp; Start
               </button>
             </div>
           </div>
