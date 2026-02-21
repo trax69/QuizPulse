@@ -84,7 +84,7 @@ button,
   outline-offset: 2px;
 }
 
-.option-item input:focus-visible+span {
+.option-item input:focus-visible + span {
   outline: 3px solid #1d4ed8;
   outline-offset: 2px;
 }
@@ -186,12 +186,81 @@ button,
 }
 
 @media (prefers-reduced-motion: reduce) {
-
   *,
   *::before,
   *::after {
     animation: none !important;
     transition: none !important;
     scroll-behavior: auto !important;
+  }
+}
+
+@media (max-width: 640px) {
+  #mainContent {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  #topControls {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+
+  #topControls > * {
+    width: 100%;
+    justify-content: center;
+  }
+
+  #fontScaleGroup {
+    grid-column: 1 / -1;
+    justify-content: center;
+  }
+
+  #importPanel,
+  #quizPanel,
+  #resultPanel,
+  #historyPanel,
+  #helpPanel {
+    padding: 1rem;
+  }
+
+  #settingsGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #settingsGrid label {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  #settingsGrid select,
+  #settingsGrid input[type="number"] {
+    width: 100%;
+    max-width: none;
+  }
+
+  #importActions,
+  #quizActions,
+  #resultActions,
+  #exportActions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
+  }
+
+  #importActions > *,
+  #quizActions > *,
+  #resultActions > *,
+  #exportActions > * {
+    width: 100%;
+    justify-content: center;
+  }
+
+  #quizStatusGroup {
+    width: 100%;
+    justify-content: flex-start;
   }
 }

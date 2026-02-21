@@ -19,7 +19,15 @@ import {
   saveHistoryState,
   saveUiSettings
 } from "./storage.js";
-import { applyContrastUi, applyMotionUi, applyReadingModeUi, applyScaleUi, applyThemeUi, escapeHtml, setImportMessageUi } from "./ui.js";
+import {
+  applyContrastUi,
+  applyMotionUi,
+  applyReadingModeUi,
+  applyScaleUi,
+  applyThemeUi,
+  escapeHtml,
+  setImportMessageUi
+} from "./ui.js";
 
 const state = {
   pendingFile: null,
@@ -41,6 +49,7 @@ const state = {
   studyMode: false,
   timerEnabled: false,
   timerSeconds: 20,
+  importMessageState: null
 };
 
 const elements = {
@@ -126,7 +135,10 @@ function applyTranslations() {
   document.querySelectorAll("[data-i18n]").forEach((node) => {
     node.textContent = t(node.dataset.i18n);
   });
-  elements.languageToggle.setAttribute("aria-label", state.language === "en" ? t("switchToSpanishAria") : t("switchToEnglishAria"));
+  elements.languageToggle.setAttribute(
+    "aria-label",
+    state.language === "en" ? t("switchToSpanishAria") : t("switchToEnglishAria")
+  );
   elements.themeToggle.setAttribute("aria-label", t("toggleThemeAria"));
   elements.fontScaleGroup?.setAttribute("aria-label", t("fontSizeControlsAria"));
   if (elements.optionsLegend) {
@@ -138,7 +150,9 @@ function applyTranslations() {
   if (state.originalQuizData) {
     const currentValue = elements.categoryFilter.value;
     buildCategories();
-    elements.categoryFilter.value = [...elements.categoryFilter.options].some((option) => option.value === currentValue) ? currentValue : "all";
+    elements.categoryFilter.value = [...elements.categoryFilter.options].some((option) => option.value === currentValue)
+      ? currentValue
+      : "all";
   } else if (elements.allCategoriesOption) {
     elements.allCategoriesOption.textContent = t("allCategories");
   }
@@ -154,6 +168,7 @@ function applyTranslations() {
   if (state.lastFeedback) {
     showFeedback({ ...state.lastFeedback, refocus: false });
   }
+  reapplyImportMessageTranslation();
 }
 
 function renderHelpGlossary() {
@@ -204,6 +219,25 @@ function hashQuiz(payload) {
 }
 
 function setImportMessage(message, type = "info") {
+  state.importMessageState = { message, type };
+  setImportMessageUi({ element: elements.importMessage, message, type });
+}
+
+function setImportMessageByKey(key, type = "info", params = {}) {
+  state.importMessageState = { key, type, params };
+  setImportMessageUi({ element: elements.importMessage, message: t(key, params), type });
+}
+
+function reapplyImportMessageTranslation() {
+  if (!state.importMessageState) return;
+
+  if (state.importMessageState.key) {
+    const { key, type, params = {} } = state.importMessageState;
+    setImportMessageUi({ element: elements.importMessage, message: t(key, params), type });
+    return;
+  }
+
+  const { message = "", type = "info" } = state.importMessageState;
   setImportMessageUi({ element: elements.importMessage, message, type });
 }
 
@@ -211,9 +245,9 @@ function setSelectedFile(file) {
   state.pendingFile = file;
   const valid = file?.name?.toLowerCase().endsWith(".json") || false;
   elements.startFromUpload.disabled = !valid;
-  if (!file) return setImportMessage(t("noFile"));
-  if (!valid) return setImportMessage(t("invalidFile"), "error");
-  return setImportMessage(t("selectedFile", { name: file.name }), "success");
+  if (!file) return setImportMessageByKey("noFile");
+  if (!valid) return setImportMessageByKey("invalidFile", "error");
+  return setImportMessageByKey("selectedFile", "success", { name: file.name });
 }
 
 function normalizeQuestions(payload) {
@@ -331,7 +365,8 @@ function renderCurrentQuestion() {
     });
 
     const text = document.createElement("span");
-    text.className = "block min-h-11 w-full rounded-xl border-2 border-slate-600 bg-white px-4 py-3 text-left text-base font-medium text-slate-900 dark:border-slate-300 dark:bg-slate-900 dark:text-slate-100";
+    text.className =
+      "block min-h-11 w-full rounded-xl border-2 border-slate-600 bg-white px-4 py-3 text-left text-base font-medium text-slate-900 dark:border-slate-300 dark:bg-slate-900 dark:text-slate-100";
     text.textContent = option.text;
 
     label.append(input, text);
@@ -407,7 +442,9 @@ function onOptionSelected(questionId, optionId, { timedOut = false } = {}) {
   elements.scoreLabel.textContent = String(state.score);
 
   const optionItems = [...elements.optionsList.querySelectorAll(".option-item")];
-  const selectedText = optionId ? optionItems.find((item) => item.dataset.optionId === optionId)?.querySelector("span") : null;
+  const selectedText = optionId
+    ? optionItems.find((item) => item.dataset.optionId === optionId)?.querySelector("span")
+    : null;
   const correctText = optionItems.find((item) => item.dataset.optionId === correctOption.id)?.querySelector("span");
 
   optionItems.forEach((item) => {
@@ -415,11 +452,25 @@ function onOptionSelected(questionId, optionId, { timedOut = false } = {}) {
   });
 
   if (correctText) {
-    correctText.classList.add("border-emerald-700", "bg-emerald-100", "text-emerald-900", "dark:border-emerald-300", "dark:bg-emerald-950", "dark:text-emerald-100");
+    correctText.classList.add(
+      "border-emerald-700",
+      "bg-emerald-100",
+      "text-emerald-900",
+      "dark:border-emerald-300",
+      "dark:bg-emerald-950",
+      "dark:text-emerald-100"
+    );
   }
 
   if (!isCorrect && selectedText) {
-    selectedText.classList.add("border-red-700", "bg-red-100", "text-red-900", "dark:border-red-300", "dark:bg-red-950", "dark:text-red-100");
+    selectedText.classList.add(
+      "border-red-700",
+      "bg-red-100",
+      "text-red-900",
+      "dark:border-red-300",
+      "dark:bg-red-950",
+      "dark:text-red-100"
+    );
   }
 
   const explanation = timedOut
@@ -565,7 +616,13 @@ function loadSettingsToUi() {
   elements.timerSecondsInput.value = String(state.timerSeconds);
 }
 
-async function showConfirmDialog({ title, message, confirmText = t("confirmContinue"), cancelText = t("confirmCancel"), destructive = false }) {
+async function showConfirmDialog({
+  title,
+  message,
+  confirmText = t("confirmContinue"),
+  cancelText = t("confirmCancel"),
+  destructive = false
+}) {
   if (!elements.confirmDialog?.showModal) return false;
 
   const previousFocus = document.activeElement;
@@ -617,7 +674,7 @@ async function showConfirmDialog({ title, message, confirmText = t("confirmConti
 async function startQuizWithPayload(questions, { mode = "full" } = {}) {
   const session = createShuffledSession(questions);
   if (!session.length) {
-    setImportMessage(t("noQuestionsForCategory"), "error");
+    setImportMessageByKey("noQuestionsForCategory", "error");
     return;
   }
 
@@ -655,7 +712,7 @@ async function parseSelectedFileAsJson() {
 }
 
 async function uploadQuizModel() {
-  setImportMessage(t("uploading"));
+  setImportMessageByKey("uploading");
   elements.startFromUpload.disabled = true;
 
   try {
@@ -670,7 +727,7 @@ async function uploadQuizModel() {
     });
 
     if (!confirmed) {
-      setImportMessage(t("startCanceled"), "info");
+      setImportMessageByKey("startCanceled", "info");
       elements.startFromUpload.disabled = !state.pendingFile;
       return;
     }
@@ -707,7 +764,8 @@ function renderResults() {
 }
 
 function renderScoreDonut({ score, total, percentage }) {
-  if (!elements.scoreDonutArc || !elements.scoreDonutPercent || !elements.scoreDonutLegend || !elements.scoreDonutWrap) return;
+  if (!elements.scoreDonutArc || !elements.scoreDonutPercent || !elements.scoreDonutLegend || !elements.scoreDonutWrap)
+    return;
 
   const ratio = total ? Math.max(0, Math.min(1, score / total)) : 0;
   const radius = 42;
@@ -718,11 +776,14 @@ function renderScoreDonut({ score, total, percentage }) {
   elements.scoreDonutArc.style.strokeDasharray = `${filled} ${circumference}`;
   elements.scoreDonutPercent.textContent = `${Math.round(percentage)}%`;
   elements.scoreDonutLegend.textContent = t("scoreChartLegend", { correct: score, incorrect });
-  elements.scoreDonutWrap.setAttribute("aria-label", t("scoreChartAria", {
-    percentage: Math.round(percentage),
-    correct: score,
-    incorrect
-  }));
+  elements.scoreDonutWrap.setAttribute(
+    "aria-label",
+    t("scoreChartAria", {
+      percentage: Math.round(percentage),
+      correct: score,
+      incorrect
+    })
+  );
 }
 
 function refreshResultPanelText() {
@@ -841,7 +902,7 @@ function restartFlow() {
 
   renderHistoryInsights();
   updateFailedOnlyButtonState();
-  setImportMessage(t("importReady"));
+  setImportMessageByKey("importReady");
 }
 
 async function confirmRestartFlow() {
@@ -873,7 +934,13 @@ async function abortCurrentQuiz() {
 }
 
 function applyTheme(theme) {
-  applyThemeUi({ theme, themeToggle: elements.themeToggle, key: KEYS.theme, t, createIcons: () => lucide.createIcons() });
+  applyThemeUi({
+    theme,
+    themeToggle: elements.themeToggle,
+    key: KEYS.theme,
+    t,
+    createIcons: () => lucide.createIcons()
+  });
 }
 
 function applyScale(scale) {

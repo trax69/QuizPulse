@@ -1,88 +1,117 @@
 <!doctype html>
 <html lang="en" class="h-full">
-
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pulse Quiz</title>
-  <script src="./vendor/tailwindcss-cdn.js"></script>
-  <script>
-    tailwind.config = {
-      darkMode: "class",
-      theme: {
-        extend: {
-          colors: {
-            electric: { 500: "#635BFF", 600: "#4F46E5" },
-            mint: { 400: "#5EEAD4", 500: "#2DD4BF" }
-          },
-          boxShadow: {
-            softGlass: "0 10px 30px rgba(15, 23, 42, 0.14)",
-            successGlow: "0 0 0 3px rgba(45, 212, 191, 0.25)"
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pulse Quiz</title>
+    <script src="./vendor/tailwindcss-cdn.js"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              electric: { 500: "#635BFF", 600: "#4F46E5" },
+              mint: { 400: "#5EEAD4", 500: "#2DD4BF" }
+            },
+            boxShadow: {
+              softGlass: "0 10px 30px rgba(15, 23, 42, 0.14)",
+              successGlow: "0 0 0 3px rgba(45, 212, 191, 0.25)"
+            }
           }
         }
-      }
-    };
-  </script>
-  <script src="./vendor/lucide-latest.js"></script>
-  <link rel="stylesheet" href="./style.css" />
-</head>
+      };
+    </script>
+    <script src="./vendor/lucide-latest.js"></script>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
 
-<body class="h-full bg-slate-50 text-slate-800 transition-colors duration-300 dark:bg-slate-950 dark:text-slate-100">
-  <a href="#mainContent" class="skip-link" data-i18n="skipLink">Skip to main content</a>
+  <body class="h-full bg-slate-50 text-slate-800 transition-colors duration-300 dark:bg-slate-950 dark:text-slate-100">
+    <a href="#mainContent" class="skip-link" data-i18n="skipLink">Skip to main content</a>
 
-  <main id="mainContent" tabindex="-1" class="min-h-full px-4 py-6 sm:px-6 lg:px-8">
-    <div class="reading-width mx-auto max-w-4xl">
-      <header class="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 class="text-2xl font-semibold tracking-tight" data-i18n="appTitle">Pulse Quiz</h1>
-          <p id="appSubtitle" class="text-base text-slate-800 dark:text-slate-100" data-i18n="appSubtitle">Upload your
-            JSON model, practice instantly, and get feedback in real-time.</p>
-        </div>
+    <main id="mainContent" tabindex="-1" class="min-h-full px-4 py-6 sm:px-6 lg:px-8">
+      <div class="reading-width mx-auto max-w-4xl">
+        <header class="mb-6 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h1 class="text-2xl font-semibold tracking-tight" data-i18n="appTitle">Pulse Quiz</h1>
+            <p id="appSubtitle" class="text-base text-slate-800 dark:text-slate-100" data-i18n="appSubtitle">
+              Upload your JSON model, practice instantly, and get feedback in real-time.
+            </p>
+          </div>
 
-        <div class="flex flex-wrap items-center gap-2">
-          <button id="languageToggle"
-            class="touch-target rounded-xl border-2 border-slate-900 bg-white px-3 py-2 text-sm font-semibold text-slate-900 dark:border-slate-200 dark:bg-slate-900 dark:text-slate-100"
-            aria-label="Toggle language">ES</button>
-          <button id="themeToggle"
-            class="touch-target icon-only rounded-xl border-2 border-slate-900 bg-white p-2 text-slate-900 dark:border-slate-200 dark:bg-slate-900 dark:text-slate-100"
-            aria-label="Toggle dark mode" aria-pressed="false">
-            <i data-lucide="moon-star" class="h-4 w-4" aria-hidden="true"></i>
-          </button>
-          <button id="contrastToggle"
-            class="touch-target rounded-xl border-2 border-slate-900 bg-white px-3 py-2 text-sm font-semibold text-slate-900 dark:border-slate-200 dark:bg-slate-900 dark:text-slate-100"
-            aria-pressed="false">Contrast: Standard</button>
-          <button id="motionToggle"
-            class="touch-target rounded-xl border-2 border-slate-900 bg-white px-3 py-2 text-sm font-semibold text-slate-900 dark:border-slate-200 dark:bg-slate-900 dark:text-slate-100"
-            aria-pressed="false">Motion: Standard</button>
-          <button id="readingModeToggle"
-            class="touch-target rounded-xl border-2 border-slate-900 bg-white px-3 py-2 text-sm font-semibold text-slate-900 dark:border-slate-200 dark:bg-slate-900 dark:text-slate-100"
-            aria-pressed="false">Reading: Off</button>
-          <fieldset
-            id="fontScaleGroup"
-            class="glass flex items-center gap-1 rounded-2xl border border-white/40 px-2 py-1 shadow-softGlass dark:border-white/10"
-            aria-label="Font size controls">
-            <legend class="sr-only">Font size controls</legend>
-            <button class="font-scale-btn rounded-xl px-3 py-2 text-sm font-semibold" data-scale="1">A</button>
-            <button class="font-scale-btn rounded-xl px-3 py-2 text-sm font-semibold" data-scale="1.25">A+</button>
-            <button class="font-scale-btn rounded-xl px-3 py-2 text-sm font-semibold" data-scale="1.5">A++</button>
-          </fieldset>
-        </div>
-      </header>
+          <div id="topControls" class="flex flex-wrap items-center gap-2">
+            <button
+              id="languageToggle"
+              class="touch-target rounded-xl border-2 border-slate-900 bg-white px-3 py-2 text-sm font-semibold text-slate-900 dark:border-slate-200 dark:bg-slate-900 dark:text-slate-100"
+              aria-label="Toggle language"
+            >
+              ES
+            </button>
+            <button
+              id="themeToggle"
+              class="touch-target icon-only rounded-xl border-2 border-slate-900 bg-white p-2 text-slate-900 dark:border-slate-200 dark:bg-slate-900 dark:text-slate-100"
+              aria-label="Toggle dark mode"
+              aria-pressed="false"
+            >
+              <i data-lucide="moon-star" class="h-4 w-4" aria-hidden="true"></i>
+            </button>
+            <button
+              id="contrastToggle"
+              class="touch-target rounded-xl border-2 border-slate-900 bg-white px-3 py-2 text-sm font-semibold text-slate-900 dark:border-slate-200 dark:bg-slate-900 dark:text-slate-100"
+              aria-pressed="false"
+            >
+              Contrast: Standard
+            </button>
+            <button
+              id="motionToggle"
+              class="touch-target rounded-xl border-2 border-slate-900 bg-white px-3 py-2 text-sm font-semibold text-slate-900 dark:border-slate-200 dark:bg-slate-900 dark:text-slate-100"
+              aria-pressed="false"
+            >
+              Motion: Standard
+            </button>
+            <button
+              id="readingModeToggle"
+              class="touch-target rounded-xl border-2 border-slate-900 bg-white px-3 py-2 text-sm font-semibold text-slate-900 dark:border-slate-200 dark:bg-slate-900 dark:text-slate-100"
+              aria-pressed="false"
+            >
+              Reading: Off
+            </button>
+            <fieldset
+              id="fontScaleGroup"
+              class="glass flex items-center gap-1 rounded-2xl border border-white/40 px-2 py-1 shadow-softGlass dark:border-white/10"
+              aria-label="Font size controls"
+            >
+              <legend class="sr-only">Font size controls</legend>
+              <button class="font-scale-btn rounded-xl px-3 py-2 text-sm font-semibold" data-scale="1">A</button>
+              <button class="font-scale-btn rounded-xl px-3 py-2 text-sm font-semibold" data-scale="1.25">A+</button>
+              <button class="font-scale-btn rounded-xl px-3 py-2 text-sm font-semibold" data-scale="1.5">A++</button>
+            </fieldset>
+          </div>
+        </header>
 
-      <section id="importPanel"
-        class="glass rounded-2xl border border-white/40 p-5 shadow-softGlass dark:border-white/10"
-        aria-labelledby="importHeading" aria-describedby="importInstructions">
-        <div class="mb-4 flex items-center gap-2">
-          <i data-lucide="file-json" class="h-5 w-5 text-electric-500" aria-hidden="true"></i>
-          <h2 id="importHeading" class="text-lg font-semibold" data-i18n="importHeading">Import Wizard</h2>
-        </div>
+        <section
+          id="importPanel"
+          class="glass rounded-2xl border border-white/40 p-5 shadow-softGlass dark:border-white/10"
+          aria-labelledby="importHeading"
+          aria-describedby="importInstructions"
+        >
+          <div class="mb-4 flex items-center gap-2">
+            <i data-lucide="file-json" class="h-5 w-5 text-electric-500" aria-hidden="true"></i>
+            <h2 id="importHeading" class="text-lg font-semibold" data-i18n="importHeading">Import Wizard</h2>
+          </div>
 
-        <p id="importInstructions" class="mb-3 text-sm text-slate-800 dark:text-slate-100"
-          data-i18n="importInstructions">Upload a JSON file with questions. Use template if needed.</p>
+          <p
+            id="importInstructions"
+            class="mb-3 text-sm text-slate-800 dark:text-slate-100"
+            data-i18n="importInstructions"
+          >
+            Upload a JSON file with questions. Use template if needed.
+          </p>
 
-        <div class="mb-4 rounded-2xl bg-slate-100/70 p-4 dark:bg-slate-900/50">
-          <h3 class="mb-2 text-sm font-medium" data-i18n="schemaHeading">Required JSON schema</h3>
-          <pre id="schemaExample" class="overflow-x-auto rounded-xl bg-slate-900 p-3 text-sm text-slate-100">[
+          <div class="mb-4 rounded-2xl bg-slate-100/70 p-4 dark:bg-slate-900/50">
+            <h3 class="mb-2 text-sm font-medium" data-i18n="schemaHeading">Required JSON schema</h3>
+            <pre id="schemaExample" class="overflow-x-auto rounded-xl bg-slate-900 p-3 text-sm text-slate-100">
+[
   {
     "id": 1,
     "category": "General",
@@ -92,196 +121,309 @@
       {"text": "Option B", "correct": false, "explanation": "Why this is wrong"}
     ]
   }
-]</pre>
-        </div>
-
-        <div id="dropZone"
-          class="drop-zone mb-4 rounded-2xl border-2 border-dashed border-slate-400 p-6 text-center transition-all duration-200 dark:border-slate-500"
-          aria-describedby="dropZoneHint">
-          <i data-lucide="upload-cloud" class="mx-auto mb-2 h-6 w-6 text-electric-500" aria-hidden="true"></i>
-          <h3 class="text-base font-medium" data-i18n="dropTitle">Drag & drop a JSON file here</h3>
-          <p id="dropZoneHint" class="mt-1 text-sm text-slate-700 dark:text-slate-200" data-i18n="dropHint">or use the
-            file picker below</p>
-        </div>
-
-        <div class="mb-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <label class="inline-flex items-center gap-2 text-sm font-semibold"><span data-i18n="categoryFilter">Category
-              filter</span>
-            <select id="categoryFilter"
-              class="w-full rounded-lg border border-slate-400 bg-white px-2 py-2 text-sm dark:border-slate-600 dark:bg-slate-900">
-              <option id="allCategoriesOption" value="all">All</option>
-            </select>
-          </label>
-          <label class="inline-flex items-center gap-2 text-sm font-semibold"><input id="studyModeInput" type="checkbox"
-              class="h-4 w-4" /> <span data-i18n="studyMode">Study mode</span></label>
-          <label class="inline-flex items-center gap-2 text-sm font-semibold"><input id="timerEnabledInput"
-              type="checkbox" class="h-4 w-4" /> <span data-i18n="timer">Timer</span></label>
-          <label class="inline-flex items-center gap-2 text-sm font-semibold"><span
-              data-i18n="secondsPerQuestion">Seconds</span>
-            <input id="timerSecondsInput" type="number" min="5" max="300" value="20"
-              class="w-20 rounded-lg border border-slate-400 bg-white px-2 py-2 text-sm dark:border-slate-600 dark:bg-slate-900" />
-          </label>
-        </div>
-
-        <div class="flex flex-wrap items-center gap-3">
-          <label
-            class="touch-target inline-flex cursor-pointer items-center rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white dark:bg-slate-100 dark:text-slate-900">
-            <span data-i18n="chooseJson">Choose JSON</span>
-            <input id="fileInput" type="file" class="hidden" accept="application/json,.json" />
-          </label>
-          <button id="startFromUpload"
-            class="touch-target rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60 dark:bg-slate-100 dark:text-slate-900"
-            disabled data-i18n="startQuiz">Start Quiz</button>
-          <button id="downloadTemplateBtn" type="button"
-            class="touch-target inline-flex items-center gap-2 rounded-xl border-2 border-slate-900 bg-white px-4 py-2 text-sm font-semibold text-slate-900 dark:border-slate-200 dark:bg-slate-900 dark:text-slate-100">
-            <i data-lucide="download" class="h-4 w-4" aria-hidden="true"></i>
-            <span data-i18n="downloadTemplate">Download Template</span>
-          </button>
-        </div>
-
-        <output id="importMessage" class="mt-3 block text-base" aria-live="polite" aria-atomic="true"></output>
-      </section>
-
-      <section id="quizPanel"
-        class="glass mt-6 hidden rounded-2xl border border-white/40 p-5 shadow-softGlass dark:border-white/10"
-        aria-live="polite" aria-labelledby="questionText">
-        <div class="mb-4 flex flex-wrap items-center justify-between gap-2">
-          <p class="text-base"><span id="progressLabel">Question 1/1</span></p>
-          <div class="flex flex-wrap items-center gap-2">
-            <span id="modeBadge"
-              class="rounded-xl border border-slate-700 bg-slate-100 px-2 py-1 text-sm font-semibold text-slate-900 dark:border-slate-200 dark:bg-slate-900 dark:text-slate-100">Mode:
-              Full Quiz</span>
-            <span
-              class="rounded-xl border border-slate-700 bg-slate-100 px-2 py-1 text-sm font-semibold text-slate-900 dark:border-slate-200 dark:bg-slate-900 dark:text-slate-100"><span
-                data-i18n="attempt">Attempt</span> <span id="attemptBadge">#1</span></span>
-            <span class="text-base font-semibold"><span data-i18n="score">Score</span>: <span
-                id="scoreLabel">0</span></span>
-            <span id="timerLabel"
-              class="rounded-xl border border-slate-700 bg-slate-100 px-2 py-1 text-sm font-semibold text-slate-900 dark:border-slate-200 dark:bg-slate-900 dark:text-slate-100"></span>
+]</pre
+            >
           </div>
-        </div>
 
-        <article class="rounded-2xl bg-white/70 p-5 dark:bg-slate-900/60">
-          <h3 id="questionText" class="mb-4 text-xl font-semibold" tabindex="-1" data-i18n="currentQuestion">Current question</h3>
-          <fieldset id="optionsList" class="space-y-2 border-0 p-0" aria-describedby="questionHelp">
-            <legend id="optionsLegend" class="sr-only" data-i18n="answerOptions">Answer options</legend>
-          </fieldset>
-          <p id="questionHelp" class="mt-2 text-sm text-slate-700 dark:text-slate-200" data-i18n="questionHelp">Use Tab
-            and Space/Enter to answer.</p>
-          <output id="feedbackBox" class="mt-4 hidden rounded-xl border px-4 py-3 text-base" aria-live="polite"
-            aria-atomic="true" tabindex="-1"></output>
-        </article>
+          <div
+            id="dropZone"
+            class="drop-zone mb-4 rounded-2xl border-2 border-dashed border-slate-400 p-6 text-center transition-all duration-200 dark:border-slate-500"
+            aria-describedby="dropZoneHint"
+          >
+            <i data-lucide="upload-cloud" class="mx-auto mb-2 h-6 w-6 text-electric-500" aria-hidden="true"></i>
+            <h3 class="text-base font-medium" data-i18n="dropTitle">Drag & drop a JSON file here</h3>
+            <p id="dropZoneHint" class="mt-1 text-sm text-slate-700 dark:text-slate-200" data-i18n="dropHint">
+              or use the file picker below
+            </p>
+          </div>
 
-        <div class="mt-5 flex flex-wrap items-center justify-end gap-2">
-          <button id="abortQuizBtn"
-            class="touch-target rounded-xl border-2 border-slate-900 bg-white px-4 py-2 text-sm font-semibold text-slate-900 dark:border-slate-200 dark:bg-slate-900 dark:text-slate-100"
-            data-i18n="cancelImport">Cancel and Import Another</button>
-          <button id="nextBtn"
-            class="touch-target hidden rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white dark:bg-slate-100 dark:text-slate-900"
-            data-i18n="nextQuestion">Next Question</button>
-        </div>
-      </section>
+          <div id="settingsGrid" class="mb-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <label class="inline-flex items-center gap-2 text-sm font-semibold"
+              ><span data-i18n="categoryFilter">Category filter</span>
+              <select
+                id="categoryFilter"
+                class="w-full rounded-lg border border-slate-400 bg-white px-2 py-2 text-sm dark:border-slate-600 dark:bg-slate-900"
+              >
+                <option id="allCategoriesOption" value="all">All</option>
+              </select>
+            </label>
+            <label class="inline-flex items-center gap-2 text-sm font-semibold"
+              ><input id="studyModeInput" type="checkbox" class="h-4 w-4" />
+              <span data-i18n="studyMode">Study mode</span></label
+            >
+            <label class="inline-flex items-center gap-2 text-sm font-semibold"
+              ><input id="timerEnabledInput" type="checkbox" class="h-4 w-4" />
+              <span data-i18n="timer">Timer</span></label
+            >
+            <label class="inline-flex items-center gap-2 text-sm font-semibold"
+              ><span data-i18n="secondsPerQuestion">Seconds</span>
+              <input
+                id="timerSecondsInput"
+                type="number"
+                min="5"
+                max="300"
+                value="20"
+                class="w-20 rounded-lg border border-slate-400 bg-white px-2 py-2 text-sm dark:border-slate-600 dark:bg-slate-900"
+              />
+            </label>
+          </div>
 
-      <section id="resultPanel"
-        class="glass mt-6 hidden rounded-2xl border border-white/40 p-5 text-center shadow-softGlass dark:border-white/10"
-        aria-live="polite" aria-labelledby="resultsHeading">
-        <h2 id="resultsHeading" class="mb-4 text-xl font-semibold" tabindex="-1" data-i18n="results">Results</h2>
-        <figure id="scoreDonutWrap" class="mx-auto mb-4 w-full max-w-xs rounded-2xl bg-white/70 p-4 dark:bg-slate-900/60"
-          aria-live="polite" aria-label="Score chart">
-          <svg viewBox="0 0 120 120" class="mx-auto h-40 w-40" aria-hidden="true" focusable="false">
-            <circle cx="60" cy="60" r="42" class="score-donut-track" stroke-width="12" fill="none"></circle>
-            <circle id="scoreDonutArc" cx="60" cy="60" r="42" class="score-donut-arc" stroke-width="12" fill="none"
-              transform="rotate(-90 60 60)" stroke-dasharray="0 264"></circle>
-            <text id="scoreDonutPercent" x="60" y="66" text-anchor="middle" class="score-donut-value">0%</text>
-          </svg>
-          <p id="scoreDonutLegend" class="mt-2 text-sm"></p>
-        </figure>
-        <p class="mb-1 text-base" id="scoreSummary"></p>
-        <p class="mb-4 text-base" id="attemptSummary"></p>
+          <div id="importActions" class="flex flex-wrap items-center gap-3">
+            <label
+              class="touch-target inline-flex cursor-pointer items-center rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white dark:bg-slate-100 dark:text-slate-900"
+            >
+              <span data-i18n="chooseJson">Choose JSON</span>
+              <input id="fileInput" type="file" class="hidden" accept="application/json,.json" />
+            </label>
+            <button
+              id="startFromUpload"
+              class="touch-target rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60 dark:bg-slate-100 dark:text-slate-900"
+              disabled
+              data-i18n="startQuiz"
+            >
+              Start Quiz
+            </button>
+            <button
+              id="downloadTemplateBtn"
+              type="button"
+              class="touch-target inline-flex items-center gap-2 rounded-xl border-2 border-slate-900 bg-white px-4 py-2 text-sm font-semibold text-slate-900 dark:border-slate-200 dark:bg-slate-900 dark:text-slate-100"
+            >
+              <i data-lucide="download" class="h-4 w-4" aria-hidden="true"></i>
+              <span data-i18n="downloadTemplate">Download Template</span>
+            </button>
+          </div>
 
-        <div class="mb-4 flex flex-wrap items-center justify-center gap-3">
-          <button id="retakeBtn"
-            class="touch-target rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white dark:bg-slate-100 dark:text-slate-900"
-            data-i18n="retake">Retake Same Quiz</button>
-          <button id="failedOnlyBtn"
-            class="touch-target rounded-xl border-2 border-slate-900 bg-white px-4 py-2 text-sm font-semibold text-slate-900 dark:border-slate-200 dark:bg-slate-900 dark:text-slate-100"
-            data-i18n="failedPractice">Practice Failed Questions</button>
-          <button id="importAnotherBtn"
-            class="touch-target rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white dark:bg-slate-100 dark:text-slate-900"
-            data-i18n="importAnother">Import Another Quiz</button>
-        </div>
+          <output id="importMessage" class="mt-3 block text-base" aria-live="polite" aria-atomic="true"></output>
+        </section>
 
-        <div class="flex flex-wrap items-center justify-center gap-2">
-          <button id="exportJsonBtn"
-            class="touch-target rounded-xl border-2 border-slate-900 bg-white px-3 py-2 text-sm font-semibold text-slate-900 dark:border-slate-200 dark:bg-slate-900 dark:text-slate-100"
-            data-i18n="exportJson">Export JSON</button>
-          <button id="exportCsvBtn"
-            class="touch-target rounded-xl border-2 border-slate-900 bg-white px-3 py-2 text-sm font-semibold text-slate-900 dark:border-slate-200 dark:bg-slate-900 dark:text-slate-100"
-            data-i18n="exportCsv">Export CSV</button>
-          <button id="exportPdfBtn"
-            class="touch-target rounded-xl border-2 border-slate-900 bg-white px-3 py-2 text-sm font-semibold text-slate-900 dark:border-slate-200 dark:bg-slate-900 dark:text-slate-100"
-            data-i18n="exportPdf">Export PDF</button>
-        </div>
-      </section>
+        <section
+          id="quizPanel"
+          class="glass mt-6 hidden rounded-2xl border border-white/40 p-5 shadow-softGlass dark:border-white/10"
+          aria-live="polite"
+          aria-labelledby="questionText"
+        >
+          <div class="mb-4 flex flex-wrap items-center justify-between gap-2">
+            <p class="text-base"><span id="progressLabel">Question 1/1</span></p>
+            <div id="quizStatusGroup" class="flex flex-wrap items-center gap-2">
+              <span
+                id="modeBadge"
+                class="rounded-xl border border-slate-700 bg-slate-100 px-2 py-1 text-sm font-semibold text-slate-900 dark:border-slate-200 dark:bg-slate-900 dark:text-slate-100"
+                >Mode: Full Quiz</span
+              >
+              <span
+                class="rounded-xl border border-slate-700 bg-slate-100 px-2 py-1 text-sm font-semibold text-slate-900 dark:border-slate-200 dark:bg-slate-900 dark:text-slate-100"
+                ><span data-i18n="attempt">Attempt</span> <span id="attemptBadge">#1</span></span
+              >
+              <span class="text-base font-semibold"
+                ><span data-i18n="score">Score</span>: <span id="scoreLabel">0</span></span
+              >
+              <span
+                id="timerLabel"
+                class="rounded-xl border border-slate-700 bg-slate-100 px-2 py-1 text-sm font-semibold text-slate-900 dark:border-slate-200 dark:bg-slate-900 dark:text-slate-100"
+              ></span>
+            </div>
+          </div>
 
-      <section id="historyPanel"
-        class="glass mt-6 rounded-2xl border border-white/40 p-5 shadow-softGlass dark:border-white/10 text-left">
-        <h3 class="text-base font-semibold" data-i18n="history">Performance History</h3>
-        <p class="mt-2 text-sm" id="bestScoreSummary">Best score: --</p>
-        <p class="text-sm" id="attemptsCountSummary">Attempts completed: 0</p>
-        <h4 class="mt-3 text-sm font-semibold uppercase tracking-wide" data-i18n="mostFailed">Most failed questions</h4>
-        <ul class="mt-2 space-y-1 text-sm" id="mostFailedList"></ul>
-        <h4 class="mt-3 text-sm font-semibold uppercase tracking-wide" data-i18n="recentAttempts">Recent attempts</h4>
-        <ul class="mt-2 space-y-1 text-sm" id="attemptHistoryList"></ul>
-      </section>
+          <article class="rounded-2xl bg-white/70 p-5 dark:bg-slate-900/60">
+            <h3 id="questionText" class="mb-4 text-xl font-semibold" tabindex="-1" data-i18n="currentQuestion">
+              Current question
+            </h3>
+            <fieldset id="optionsList" class="space-y-2 border-0 p-0" aria-describedby="questionHelp">
+              <legend id="optionsLegend" class="sr-only" data-i18n="answerOptions">Answer options</legend>
+            </fieldset>
+            <p id="questionHelp" class="mt-2 text-sm text-slate-700 dark:text-slate-200" data-i18n="questionHelp">
+              Use Tab and Space/Enter to answer.
+            </p>
+            <output
+              id="feedbackBox"
+              class="mt-4 hidden rounded-xl border px-4 py-3 text-base"
+              aria-live="polite"
+              aria-atomic="true"
+              tabindex="-1"
+            ></output>
+          </article>
 
-      <section id="helpPanel"
-        class="glass mt-6 rounded-2xl border border-white/40 p-5 shadow-softGlass dark:border-white/10 text-left"
-        aria-labelledby="helpHeading">
-        <h3 id="helpHeading" class="text-base font-semibold" data-i18n="help">Help and glossary</h3>
-        <p class="mt-2 text-sm" data-i18n="helpShortcut">Tip: press ? to open keyboard shortcuts.</p>
-        <ul class="mt-3 list-disc space-y-2 pl-6 text-sm">
-          <li id="helpJsonItem"><abbr title="JavaScript Object Notation">JSON</abbr> is a lightweight data format.</li>
-          <li id="helpIdItem"><abbr title="Identifier">ID</abbr> means unique question identifier.</li>
-        </ul>
-      </section>
-
-      <dialog id="confirmDialog" aria-modal="true" aria-labelledby="confirmDialogTitle"
-        aria-describedby="confirmDialogMessage">
-        <div class="dialog-panel glass shadow-softGlass">
-          <h2 id="confirmDialogTitle" class="text-lg font-semibold" data-i18n="confirm">Please confirm</h2>
-          <p id="confirmDialogMessage" class="mt-3 text-sm"></p>
-          <div class="mt-4 flex flex-wrap justify-end gap-2">
-            <button id="confirmCancelBtn"
+          <div id="quizActions" class="mt-5 flex flex-wrap items-center justify-end gap-2">
+            <button
+              id="abortQuizBtn"
               class="touch-target rounded-xl border-2 border-slate-900 bg-white px-4 py-2 text-sm font-semibold text-slate-900 dark:border-slate-200 dark:bg-slate-900 dark:text-slate-100"
-              data-i18n="confirmCancel">Cancel</button>
-            <button id="confirmAcceptBtn"
-              class="touch-target rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white dark:bg-slate-100 dark:text-slate-900"
-              data-i18n="confirmContinue">Continue</button>
+              data-i18n="cancelImport"
+            >
+              Cancel and Import Another
+            </button>
+            <button
+              id="nextBtn"
+              class="touch-target hidden rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white dark:bg-slate-100 dark:text-slate-900"
+              data-i18n="nextQuestion"
+            >
+              Next Question
+            </button>
           </div>
-        </div>
-      </dialog>
+        </section>
 
-      <dialog id="shortcutDialog" aria-modal="true" aria-labelledby="shortcutTitle">
-        <div class="dialog-panel glass shadow-softGlass">
-          <h2 id="shortcutTitle" class="text-lg font-semibold" data-i18n="shortcutTitle">Keyboard shortcuts</h2>
+        <section
+          id="resultPanel"
+          class="glass mt-6 hidden rounded-2xl border border-white/40 p-5 text-center shadow-softGlass dark:border-white/10"
+          aria-live="polite"
+          aria-labelledby="resultsHeading"
+        >
+          <h2 id="resultsHeading" class="mb-4 text-xl font-semibold" tabindex="-1" data-i18n="results">Results</h2>
+          <figure
+            id="scoreDonutWrap"
+            class="mx-auto mb-4 w-full max-w-xs rounded-2xl bg-white/70 p-4 dark:bg-slate-900/60"
+            aria-live="polite"
+            aria-label="Score chart"
+          >
+            <svg viewBox="0 0 120 120" class="mx-auto h-40 w-40" aria-hidden="true" focusable="false">
+              <circle cx="60" cy="60" r="42" class="score-donut-track" stroke-width="12" fill="none"></circle>
+              <circle
+                id="scoreDonutArc"
+                cx="60"
+                cy="60"
+                r="42"
+                class="score-donut-arc"
+                stroke-width="12"
+                fill="none"
+                transform="rotate(-90 60 60)"
+                stroke-dasharray="0 264"
+              ></circle>
+              <text id="scoreDonutPercent" x="60" y="66" text-anchor="middle" class="score-donut-value">0%</text>
+            </svg>
+            <p id="scoreDonutLegend" class="mt-2 text-sm"></p>
+          </figure>
+          <p class="mb-1 text-base" id="scoreSummary"></p>
+          <p class="mb-4 text-base" id="attemptSummary"></p>
+
+          <div id="resultActions" class="mb-4 flex flex-wrap items-center justify-center gap-3">
+            <button
+              id="retakeBtn"
+              class="touch-target rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white dark:bg-slate-100 dark:text-slate-900"
+              data-i18n="retake"
+            >
+              Retake Same Quiz
+            </button>
+            <button
+              id="failedOnlyBtn"
+              class="touch-target rounded-xl border-2 border-slate-900 bg-white px-4 py-2 text-sm font-semibold text-slate-900 dark:border-slate-200 dark:bg-slate-900 dark:text-slate-100"
+              data-i18n="failedPractice"
+            >
+              Practice Failed Questions
+            </button>
+            <button
+              id="importAnotherBtn"
+              class="touch-target rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white dark:bg-slate-100 dark:text-slate-900"
+              data-i18n="importAnother"
+            >
+              Import Another Quiz
+            </button>
+          </div>
+
+          <div id="exportActions" class="flex flex-wrap items-center justify-center gap-2">
+            <button
+              id="exportJsonBtn"
+              class="touch-target rounded-xl border-2 border-slate-900 bg-white px-3 py-2 text-sm font-semibold text-slate-900 dark:border-slate-200 dark:bg-slate-900 dark:text-slate-100"
+              data-i18n="exportJson"
+            >
+              Export JSON
+            </button>
+            <button
+              id="exportCsvBtn"
+              class="touch-target rounded-xl border-2 border-slate-900 bg-white px-3 py-2 text-sm font-semibold text-slate-900 dark:border-slate-200 dark:bg-slate-900 dark:text-slate-100"
+              data-i18n="exportCsv"
+            >
+              Export CSV
+            </button>
+            <button
+              id="exportPdfBtn"
+              class="touch-target rounded-xl border-2 border-slate-900 bg-white px-3 py-2 text-sm font-semibold text-slate-900 dark:border-slate-200 dark:bg-slate-900 dark:text-slate-100"
+              data-i18n="exportPdf"
+            >
+              Export PDF
+            </button>
+          </div>
+        </section>
+
+        <section
+          id="historyPanel"
+          class="glass mt-6 rounded-2xl border border-white/40 p-5 shadow-softGlass dark:border-white/10 text-left"
+        >
+          <h3 class="text-base font-semibold" data-i18n="history">Performance History</h3>
+          <p class="mt-2 text-sm" id="bestScoreSummary">Best score: --</p>
+          <p class="text-sm" id="attemptsCountSummary">Attempts completed: 0</p>
+          <h4 class="mt-3 text-sm font-semibold uppercase tracking-wide" data-i18n="mostFailed">
+            Most failed questions
+          </h4>
+          <ul class="mt-2 space-y-1 text-sm" id="mostFailedList"></ul>
+          <h4 class="mt-3 text-sm font-semibold uppercase tracking-wide" data-i18n="recentAttempts">Recent attempts</h4>
+          <ul class="mt-2 space-y-1 text-sm" id="attemptHistoryList"></ul>
+        </section>
+
+        <section
+          id="helpPanel"
+          class="glass mt-6 rounded-2xl border border-white/40 p-5 shadow-softGlass dark:border-white/10 text-left"
+          aria-labelledby="helpHeading"
+        >
+          <h3 id="helpHeading" class="text-base font-semibold" data-i18n="help">Help and glossary</h3>
+          <p class="mt-2 text-sm" data-i18n="helpShortcut">Tip: press ? to open keyboard shortcuts.</p>
           <ul class="mt-3 list-disc space-y-2 pl-6 text-sm">
-            <li id="shortcutItemOpen"><strong>?</strong>: open shortcuts</li>
-            <li id="shortcutItemEsc"><strong>Esc</strong>: close dialogs</li>
-            <li id="shortcutItemTab"><strong>Tab</strong>: navigate controls</li>
-            <li id="shortcutItemAnswer"><strong>Space / Enter</strong>: answer options</li>
+            <li id="helpJsonItem">
+              <abbr title="JavaScript Object Notation">JSON</abbr> is a lightweight data format.
+            </li>
+            <li id="helpIdItem"><abbr title="Identifier">ID</abbr> means unique question identifier.</li>
           </ul>
-          <div class="mt-4 flex justify-end">
-            <button id="shortcutCloseBtn"
-              class="touch-target rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white dark:bg-slate-100 dark:text-slate-900"
-              data-i18n="shortcutClose">Close</button>
+        </section>
+
+        <dialog
+          id="confirmDialog"
+          aria-modal="true"
+          aria-labelledby="confirmDialogTitle"
+          aria-describedby="confirmDialogMessage"
+        >
+          <div class="dialog-panel glass shadow-softGlass">
+            <h2 id="confirmDialogTitle" class="text-lg font-semibold" data-i18n="confirm">Please confirm</h2>
+            <p id="confirmDialogMessage" class="mt-3 text-sm"></p>
+            <div class="mt-4 flex flex-wrap justify-end gap-2">
+              <button
+                id="confirmCancelBtn"
+                class="touch-target rounded-xl border-2 border-slate-900 bg-white px-4 py-2 text-sm font-semibold text-slate-900 dark:border-slate-200 dark:bg-slate-900 dark:text-slate-100"
+                data-i18n="confirmCancel"
+              >
+                Cancel
+              </button>
+              <button
+                id="confirmAcceptBtn"
+                class="touch-target rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white dark:bg-slate-100 dark:text-slate-900"
+                data-i18n="confirmContinue"
+              >
+                Continue
+              </button>
+            </div>
           </div>
-        </div>
-      </dialog>
-    </div>
-  </main>
+        </dialog>
 
-  <script type="module" src="./app.js"></script>
-</body>
+        <dialog id="shortcutDialog" aria-modal="true" aria-labelledby="shortcutTitle">
+          <div class="dialog-panel glass shadow-softGlass">
+            <h2 id="shortcutTitle" class="text-lg font-semibold" data-i18n="shortcutTitle">Keyboard shortcuts</h2>
+            <ul class="mt-3 list-disc space-y-2 pl-6 text-sm">
+              <li id="shortcutItemOpen"><strong>?</strong>: open shortcuts</li>
+              <li id="shortcutItemEsc"><strong>Esc</strong>: close dialogs</li>
+              <li id="shortcutItemTab"><strong>Tab</strong>: navigate controls</li>
+              <li id="shortcutItemAnswer"><strong>Space / Enter</strong>: answer options</li>
+            </ul>
+            <div class="mt-4 flex justify-end">
+              <button
+                id="shortcutCloseBtn"
+                class="touch-target rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white dark:bg-slate-100 dark:text-slate-900"
+                data-i18n="shortcutClose"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </dialog>
+      </div>
+    </main>
 
+    <script type="module" src="./app.js"></script>
+  </body>
 </html>
