@@ -4,18 +4,45 @@
 }
 
 .skip-link {
-  position: absolute;
-  top: 0;
-  left: 0;
-  transform: translateY(-120%);
-  background: #0f172a;
+  /* clip-path approach: no position:absolute (G17.Abs) nor position:fixed
+     (1_4_10 2D-scroll) — both trigger Pa11y WCAG2AAA warnings. */
+  clip-path: inset(50%);
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+  white-space: nowrap;
+  display: block;
+  background-color: #0f172a; /* contrast vs #fff = 21:1 */
   color: #fff;
   padding: 0.75rem 1rem;
   z-index: 60;
 }
 
 .skip-link:focus {
-  transform: translateY(0);
+  clip-path: none;
+  height: auto;
+  width: auto;
+  overflow: visible;
+  white-space: normal;
+}
+
+/* Override Tailwind sr-only: clip-path avoids G17.Abs Pa11y warning that
+   position:absolute in Tailwind's default sr-only implementation triggers. */
+.sr-only {
+  position: static !important;
+  clip-path: inset(50%) !important;
+  height: 1px !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  width: 1px !important;
+}
+.sr-only.focusable:focus,
+.sr-only:focus {
+  clip-path: none !important;
+  height: auto !important;
+  overflow: visible !important;
+  white-space: normal !important;
+  width: auto !important;
 }
 
 .touch-target,
@@ -29,12 +56,19 @@ button,
 }
 
 .glass {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.45));
+  /* No background-image: HTMLCodeSniffer (Pa11y/WCAG2AAA) cannot blend rgba
+     gradients and flags ANY background-image as a contrast risk (G17.BgImage /
+     G18.BgImage). backdrop-filter: blur() + a solid background-color produces
+     an equivalent frosted-glass look without triggering those checks. */
+  background-color: rgb(250, 251, 252); /* slate-50/98 — text contrast ≥ 13:1 vs #1e293b */
   backdrop-filter: blur(18px);
+  color: #1e293b; /* slate-800 */
 }
 
 .dark .glass {
-  background: linear-gradient(145deg, rgba(15, 23, 42, 0.72), rgba(30, 41, 59, 0.46));
+  background-color: rgb(10, 15, 28); /* deep navy — contrast ≥ 14:1 vs slate-100 */
+  backdrop-filter: blur(18px);
+  color: #f1f5f9; /* slate-100 */
 }
 
 .drop-zone.dragover {
@@ -76,7 +110,7 @@ button,
 }
 
 .option-item {
-  display: block;
+  display: contents; /* no box generated → hit area is determined by the child <span> with rounded-xl, preventing ghost clicks in the visually-empty corners */
 }
 
 .option-item:focus-visible span {
@@ -122,6 +156,14 @@ button,
 #attemptHistoryList li,
 #dropZoneHint {
   overflow-wrap: anywhere;
+}
+
+/* Prevent the schema <pre> block from requiring horizontal scroll at narrow
+   viewports, satisfying WCAG 1.4.10 Reflow (Pa11y C32,C31,C33 check). */
+#schemaExample {
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  overflow-x: hidden; /* pre-wrap wraps; no horizontal scroll needed (1_4_10) */
 }
 
 .feedback-box {

@@ -43,7 +43,6 @@
             <button
               id="languageToggle"
               class="touch-target rounded-xl border-2 border-slate-900 bg-white px-3 py-2 text-sm font-semibold text-slate-900 dark:border-slate-200 dark:bg-slate-900 dark:text-slate-100"
-              aria-label="Toggle language"
             >
               ES
             </button>
@@ -108,9 +107,9 @@
             Upload a JSON file with questions. Use template if needed.
           </p>
 
-          <div class="mb-4 rounded-2xl bg-slate-100/70 p-4 dark:bg-slate-900/50">
-            <h3 class="mb-2 text-sm font-medium" data-i18n="schemaHeading">Required JSON schema</h3>
-            <pre id="schemaExample" class="overflow-x-auto rounded-xl bg-slate-900 p-3 text-sm text-slate-100">
+          <div class="mb-4 rounded-2xl bg-slate-100 p-4 dark:bg-slate-800">
+            <h3 class="mb-2 text-sm font-medium text-slate-900 dark:text-slate-100" data-i18n="schemaHeading">Required JSON schema</h3>
+            <pre id="schemaExample" class="rounded-xl bg-slate-900 p-3 text-sm text-slate-100">
 [
   {
     "id": 1,
@@ -139,7 +138,7 @@
             ></ul>
             <p
               id="savedQuizzesEmpty"
-              class="hidden rounded-xl border border-dashed border-slate-300 px-4 py-3 text-sm text-slate-600 dark:border-slate-600 dark:text-slate-400"
+              class="hidden rounded-xl border border-dashed border-slate-300 px-4 py-3 text-sm text-slate-700 dark:border-slate-600 dark:text-slate-300"
               data-i18n="savedQuizzesEmpty"
             >
               No saved quizzes yet. Import a JSON file to get started.
@@ -163,6 +162,8 @@
               ><span data-i18n="categoryFilter">Category filter</span>
               <select
                 id="categoryFilter"
+                name="categoryFilter"
+                autocomplete="off"
                 class="w-full rounded-lg border border-slate-400 bg-white px-2 py-2 text-sm dark:border-slate-600 dark:bg-slate-900"
               >
                 <option id="allCategoriesOption" value="all">All</option>
@@ -184,6 +185,7 @@
                 min="5"
                 max="300"
                 value="20"
+                autocomplete="off"
                 class="w-20 rounded-lg border border-slate-400 bg-white px-2 py-2 text-sm dark:border-slate-600 dark:bg-slate-900"
               />
             </label>
